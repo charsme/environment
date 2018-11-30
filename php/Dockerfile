@@ -128,11 +128,9 @@ RUN apk add --no-cache --virtual .persistent-deps \
 			| sort -u \
 			| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
 	)" \
-	&& apk add --no-cache --virtual .php-rundeps $runDeps \
-	\
-	&& apk del .build-deps \
-	\
-    && docker-php-ext-configure gd \
+	&& apk add --no-cache --virtual .php-rundeps $runDeps
+
+RUN docker-php-ext-configure gd \
         --with-freetype-dir=/usr/include/ \
         --with-png-dir=/usr/include/ \
         --with-jpeg-dir=/usr/include/ \
@@ -147,11 +145,13 @@ RUN apk add --no-cache --virtual .persistent-deps \
     && docker-php-ext-enable memcached.so redis.so grpc.so protobuf.so imagick.so \
     && docker-php-ext-enable sodium hash intl mbstring opcache pdo_pgsql pgsql zip \
     \
+	&& apk del .build-deps \
+	\
     && { find /usr/local/lib -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
     && apk del .build-deps \
-    && rm -rf /tmp/* /usr/local/lib/php/doc/* /var/cache/apk/* \
-    \
-    && set -ex \
+    && rm -rf /tmp/* /usr/local/lib/php/doc/* /var/cache/apk/*
+
+RUN set -ex \
 	&& cd /usr/local/etc \
 	&& if [ -d php-fpm.d ]; then \
 		# for some reason, upstream's php-fpm.conf.default has "include=NONE/etc/php-fpm.d/*.conf"
