@@ -9,12 +9,6 @@ ENV PHPIZE_DEPS \
 		libc-dev \
 		make \
 		pkgconf \
-        freetype \
-        libpng \
-        libjpeg-turbo \
-        freetype-dev \
-        libpng-dev \
-        libjpeg-turbo-dev \
 		re2c
 
 ENV PHP_INI_DIR /usr/local/etc/php
@@ -80,6 +74,13 @@ RUN apk add --no-cache --virtual .persistent-deps \
 		libressl-dev \
 		libsodium-dev \
 		libxml2-dev \
+        freetype \
+        libpng \
+        libjpeg-turbo \
+        freetype-dev \
+        libpng-dev \
+        libjpeg-turbo-dev \
+        postgresql-dev \
 	\
 	&& export CFLAGS="$PHP_CFLAGS" \
 		CPPFLAGS="$PHP_CPPFLAGS" \
@@ -135,20 +136,20 @@ RUN docker-php-ext-configure gd \
         --with-png-dir=/usr/include/ \
         --with-jpeg-dir=/usr/include/ \
     && docker-php-ext-install gd \
-    && apk del --no-cache freetype-dev libpng-dev libjpeg-turbo-dev \
     \
 	&& pecl update-channels \
 	&& rm -rf /tmp/pear ~/.pearrc \
     && docker-php-ext-configure intl \
+    && docker-php-ext-configure pgsql \
     && docker-php-ext-install hash intl mbstring opcache pdo_pgsql pgsql zip \
     && pecl install memcached redis grpc protobuf imagick \
     && docker-php-ext-enable memcached.so redis.so grpc.so protobuf.so imagick.so \
     && docker-php-ext-enable sodium hash intl mbstring opcache pdo_pgsql pgsql zip \
     \
 	&& apk del .build-deps \
+    && apk del --no-cache freetype-dev libpng-dev libjpeg-turbo-dev postgresql-dev \
 	\
     && { find /usr/local/lib -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
-    && apk del .build-deps \
     && rm -rf /tmp/* /usr/local/lib/php/doc/* /var/cache/apk/*
 
 RUN set -ex \
