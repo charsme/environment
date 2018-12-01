@@ -63,8 +63,9 @@ RUN apk add --no-cache --virtual .persistent-deps \
             rm -rf "$GNUPGHOME"; \
         fi; \
         \
-        apk del .fetch-deps \
-    && set -xe \
+        apk del .fetch-deps
+
+RUN set -xe \
 	&& apk add --no-cache --virtual .build-deps \
 		$PHPIZE_DEPS \
 		argon2-dev \
@@ -74,6 +75,7 @@ RUN apk add --no-cache --virtual .persistent-deps \
 		libressl-dev \
 		libsodium-dev \
 		libxml2-dev \
+        sqlite-dev \
         freetype \
         libpng \
         libjpeg-turbo \
@@ -118,7 +120,7 @@ RUN apk add --no-cache --virtual .persistent-deps \
 	\
 	&& cp -v php.ini-* "$PHP_INI_DIR/" \
 	\
-    && cp "$PHP_INI_DIR/php.ini.production" "$PHP_INI_DIR/php.ini" \
+    && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
     \
 	&& cd / \
 	&& docker-php-source delete \
@@ -138,7 +140,6 @@ RUN docker-php-ext-configure gd \
     && docker-php-ext-install gd \
     \
 	&& pecl update-channels \
-	&& rm -rf /tmp/pear ~/.pearrc \
     && docker-php-ext-configure intl \
     && docker-php-ext-configure pgsql \
     && docker-php-ext-install hash intl mbstring opcache pdo_pgsql pgsql zip \
@@ -151,6 +152,7 @@ RUN docker-php-ext-configure gd \
 	\
     && { find /usr/local/lib -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
     && rm -rf /tmp/* /usr/local/lib/php/doc/* /var/cache/apk/*
+    && && rm -rf /tmp/pear ~/.pearrc \
 
 RUN set -ex \
 	&& cd /usr/local/etc \
