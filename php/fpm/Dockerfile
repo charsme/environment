@@ -1,74 +1,62 @@
-FROM alpine:3.8
+FROM php:7.2-fpm
 
-ENV PHP_INI_DIR /etc/php7/
+ENV PHP_OPCACHE_VALIDATE_TIMESTAMPS="0" \
+    PHP_OPCACHE_MAX_ACCELERATED_FILES="10000" \
+    PHP_OPCACHE_MEMORY_CONSUMPTION="192" \
+    PHP_OPCACHE_MAX_WASTED_PERCENTAGE="10"
 
-COPY start.sh /usr/local/bin/php-start
+RUN apt-get update \
+    ; apt-get install -y --no-install-recommends libbz2-dev \
+    && docker-php-ext-install bz2 \
+    ; docker-php-ext-install bcmath \
+    ; docker-php-ext-install exif \
+    ; apt-get install -y --no-install-recommends libpng-dev libjpeg-dev libwebp-dev libxpm-dev \
+    && docker-php-ext-configure gd --with-webp-dir=DIR --with-jpeg-dir=DIR --with-png-dir=DIR --with-xpm-dir=DIR \
+    && docker-php-ext-install gd \
+    ; docker-php-ext-install gettext \
+    ; apt-get install -y --no-install-recommends libicu-dev \
+    && docker-php-ext-configure intl \
+    && docker-php-ext-install intl \
+    ; apt-get install -y --no-install-recommends libpq-dev \
+    && docker-php-ext-configure pdo_pgsql \
+    && docker-php-ext-install pdo_pgsql \
+    ; docker-php-ext-install sockets \
+    ; apt-get install -y --no-install-recommends libtidy-dev \
+    && docker-php-ext-configure tidy \
+    ; docker-php-ext-install tidy \
+    && docker-php-ext-install zip \
+    ; docker-php-ext-configure opcache \
+    && docker-php-ext-install opcache \
+    && { \
+        echo "[opcache]"; \
+        echo "opcache.enable=1"; \
+        echo "opcache.revalidate_freq=0"; \
+        echo "opcache.validate_timestamps=${PHP_OPCACHE_VALIDATE_TIMESTAMPS}"; \
+        echo "opcache.max_accelerated_files=${PHP_OPCACHE_MAX_ACCELERATED_FILES}"; \
+        echo "opcache.memory_consumption=${PHP_OPCACHE_MEMORY_CONSUMPTION}"; \
+        echo "opcache.max_wasted_percentage=${PHP_OPCACHE_MAX_WASTED_PERCENTAGE}"; \
+        echo "opcache.interned_strings_buffer=16"; \
+        echo "opcache.fast_shutdown=1"; \
+    } | tee /usr/local/etc/php/conf.d/opcache.ini \
+    ; pecl update-channels \
+    ; pecl install protobuf grpc \
+    && echo "extension=protobuf.so" >> /usr/local/etc/php/conf.d/php-ext-protobuf.ini \
+    && echo "extension=grpc.so" >> /usr/local/etc/php/conf.d/php-ext-grpc.ini \
+    ; pecl clear-cache \
+    ; rm -rf /tmp/pear ~/.pearrc \
+    ; rm -rf /var/lib/apt/lists/* \
+    ; apt-get autoremove && apt-get autoclean \
+    ; apt-mark auto '.*' > /dev/null \
+    ; [ -z "$savedAptMark" ] || apt-mark manual $savedAptMark \
+    ; find /usr/local -type f -executable -exec ldd '{}' ';' \
+		| awk '/=>/ { print $(NF-1) }' \
+		| sort -u \
+		| xargs -r dpkg-query --search \
+		| cut -d: -f1 \
+		| sort -u \
+		| xargs -r apt-mark manual \
+    ; apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false
 
-RUN set -x \
-	&& addgroup -g 82 -S www-data \
-	&& adduser -u 82 -D -S -G www-data www-data \
-    && chmod +x /usr/local/bin/php-start \
-    && chown www-data:www-data /usr/local/bin/php-start \
-    ; set -ex \
-    && apk add --no-cache --update php7 \
-        php7-fpm \
-        php7-bcmath \
-        php7-dom \
-        php7-pdo \
-        php7-pdo_pgsql \
-        php7-openssl \
-        php7-oauth \
-        php7-imap \
-        php7-mbstring \
-        php7-pear \
-        php7-session \
-        php7-sockets \
-        php7-intl \
-        php7-tidy \
-        php7-redis \
-        php7-gd \
-        php7-yaml \
-        php7-tokenizer \
-        php7-xml \
-        php7-xmlreader \
-        php7-xmlwriter \
-        php7-sodium \
-        php7-phar \
-        php7-opcache \
-        php7-gettext \
-        php7-iconv \
-        php7-json \
-        php7-curl \
-        php7-ctype \
-        php7-ftp \
-        php7-zip \
-    ; apk add --no-cache --update php7-dev \
-    && apk add --no-cache --virtual .phpize_deps \
-		autoconf \
-		dpkg-dev dpkg \
-		file \
-		g++ \
-		gcc \
-		libc-dev \
-		make \
-		pkgconf \
-		re2c \
-        zlib-dev \
-    && pecl install grpc \
-    && echo "extension=grpc.so" >> ${PHP_INI_DIR}/php.ini \
-    && pecl install protobuf \
-    && echo "extension=protobuf.so" >> ${PHP_INI_FILE}/php.ini \
-    && apk del --no-cache .phpize_deps \
-    && apk del --no-cache php7-dev \
-    ; { find /usr/local/lib -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
-    && rm -Rrf /tmp/* /usr/local/lib/php/doc/* /var/cache/apk/* ~/.pearrc \
-    && mkdir -p /var/www/ \
-    && chown www-data:www-data /var/www/
-
-USER www-data:www-data
-
-WORKDIR /var/www
-
-ENTRYPOINT [ "php-start" ]
 EXPOSE 9000
-CMD [ "php-fpm" ]
+
+CMD ["php-fpm"]
