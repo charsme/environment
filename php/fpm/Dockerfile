@@ -1,10 +1,5 @@
 FROM php:7.2-fpm
 
-ENV PHP_OPCACHE_VALIDATE_TIMESTAMPS="0" \
-    PHP_OPCACHE_MAX_ACCELERATED_FILES="10000" \
-    PHP_OPCACHE_MEMORY_CONSUMPTION="192" \
-    PHP_OPCACHE_MAX_WASTED_PERCENTAGE="10"
-
 RUN apt-get update \
     ; apt-get install -y --no-install-recommends libbz2-dev \
     && docker-php-ext-install bz2 \
@@ -27,17 +22,6 @@ RUN apt-get update \
     && docker-php-ext-install zip \
     ; docker-php-ext-configure opcache \
     && docker-php-ext-install opcache \
-    && { \
-        echo "[opcache]"; \
-        echo "opcache.enable=1"; \
-        echo "opcache.revalidate_freq=0"; \
-        echo "opcache.validate_timestamps=${PHP_OPCACHE_VALIDATE_TIMESTAMPS}"; \
-        echo "opcache.max_accelerated_files=${PHP_OPCACHE_MAX_ACCELERATED_FILES}"; \
-        echo "opcache.memory_consumption=${PHP_OPCACHE_MEMORY_CONSUMPTION}"; \
-        echo "opcache.max_wasted_percentage=${PHP_OPCACHE_MAX_WASTED_PERCENTAGE}"; \
-        echo "opcache.interned_strings_buffer=16"; \
-        echo "opcache.fast_shutdown=1"; \
-    } | tee /usr/local/etc/php/conf.d/opcache.ini \
     ; pecl update-channels \
     ; pecl install protobuf grpc \
     && echo "extension=protobuf.so" >> /usr/local/etc/php/conf.d/php-ext-protobuf.ini \
