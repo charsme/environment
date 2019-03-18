@@ -29,17 +29,7 @@ RUN apt-get update \
     ; pecl clear-cache \
     ; rm -rf /tmp/pear ~/.pearrc \
     ; rm -rf /var/lib/apt/lists/* \
-    ; apt-get autoremove && apt-get autoclean \
-    ; apt-mark auto '.*' > /dev/null \
-    ; [ -z "$savedAptMark" ] || apt-mark manual $savedAptMark \
-    ; find /usr/local -type f -executable -exec ldd '{}' ';' \
-		| awk '/=>/ { print $(NF-1) }' \
-		| sort -u \
-		| xargs -r dpkg-query --search \
-		| cut -d: -f1 \
-		| sort -u \
-		| xargs -r apt-mark manual \
-    ; apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false
+    ; apt-get autoremove && apt-get autoclean
 
 EXPOSE 9000
 
