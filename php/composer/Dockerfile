@@ -1,7 +1,7 @@
 FROM php:7.2-fpm
 
 RUN apt-get update \
-    ; apt-get install -y --no-install-recommends libbz2-dev \
+    ; apt-get install -y --no-install-recommends libbz2-dev unzip \
     && docker-php-ext-install bz2 \
     ; docker-php-ext-install bcmath \
     ; docker-php-ext-install exif \
