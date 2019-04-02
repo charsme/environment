@@ -1,8 +1,12 @@
-FROM alpine:3.9
-LABEL maintainer="Abdulloh Charis<me@chars.me>"
+FROM ubuntu:18.10
 
-RUN apk add --no-cache beanstalkd \
-    && mkdir "/var/data"
+ENV DATA_DIR /data
+
+RUN apt-get update -q -y \
+    && apt-get -q -y install beanstalkd \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* \
+    && mkdir -p $DATA_DIR
 
 EXPOSE 11300
 ENTRYPOINT ["/usr/bin/beanstalkd"]
