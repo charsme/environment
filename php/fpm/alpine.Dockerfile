@@ -2,7 +2,7 @@ FROM alpine:3.8
 
 ENV PHP_INI_DIR /etc/php7/
 
-COPY start.sh /usr/local/bin/php-start
+COPY ./start.sh /usr/local/bin/php-start
 
 RUN set -x \
 	&& addgroup -g 82 -S www-data \
@@ -59,7 +59,6 @@ RUN set -x \
     && echo "extension=grpc.so\nextension=protobuf.so\n" >> ${PHP_INI_DIR}/php.ini \
     && apk del --no-cache .phpize_deps \
     && apk del --no-cache php7-dev \
-    ; { find /usr/local/lib -type f -print0 | xargs -0r strip --strip-all -p 2>/dev/null || true; } \
     && rm -Rrf /tmp/* /usr/local/lib/php/doc/* /var/cache/apk/* ~/.pearrc \
     && mkdir -p /var/www/ \
     && chown www-data:www-data /var/www/
