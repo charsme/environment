@@ -10,7 +10,6 @@ RUN composer create-project --prefer-dist laravel/laravel . "5.7.*" \
 
 COPY ./beanstalkdui.php /var/www/html/config/beanstalkdui.php
 
-RUN php artisan optimize \
-    && php artisan serve --host="0.0.0.0" --port=80
+RUN php artisan serve --host="0.0.0.0" --port=80
 
 EXPOSE 80
