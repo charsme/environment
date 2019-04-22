@@ -2,7 +2,7 @@ FROM alpine:3.8
 
 ENV PHP_INI_DIR /etc/php7/
 
-COPY ./start.sh /usr/local/bin/php-start
+# COPY ./start.sh /usr/local/bin/php-start
 
 RUN set -x \
 	&& addgroup -g 82 -S www-data \
@@ -67,6 +67,5 @@ USER www-data:www-data
 
 WORKDIR /var/www
 
-ENTRYPOINT [ "php-start" ]
+ENTRYPOINT [ "php-fpm" ]
 EXPOSE 9000
-CMD [ "php-fpm" ]
