@@ -32,5 +32,4 @@ RUN apt-get update \
     ; apt-get autoremove && apt-get autoclean
 
 EXPOSE 9000
-
 CMD ["php-fpm"]

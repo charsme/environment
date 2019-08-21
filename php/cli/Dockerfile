@@ -1,7 +1,7 @@
-FROM php:7.3-fpm
+FROM php:7.3-cli-alpine
 
 RUN apt-get update \
-    ; apt-get install -y --no-install-recommends libbz2-dev unzip \
+    ; apt-get install -y --no-install-recommends libbz2-dev \
     && docker-php-ext-install bz2 \
     ; docker-php-ext-install bcmath \
     ; docker-php-ext-install exif \
@@ -29,8 +29,8 @@ RUN apt-get update \
     ; pecl clear-cache \
     ; rm -rf /tmp/pear ~/.pearrc \
     ; rm -rf /var/lib/apt/lists/* \
-    ; apt-get autoremove && apt-get autoclean \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    ; apt-get autoremove && apt-get autoclean
 
-EXPOSE 9000
-CMD ["php-fpm"]
+ENTRYPOINT ["docker-php-entrypoint"]
+
+CMD ["php", "-a"]
