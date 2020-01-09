@@ -266,7 +266,7 @@ RUN pecl update-channels \
     ; pecl install protobuf grpc mongodb \
     && echo "extension=protobuf.so" >> /usr/local/etc/php/conf.d/php-ext-protobuf.ini \
     && echo "extension=grpc.so" >> /usr/local/etc/php/conf.d/php-ext-grpc.ini \
-    && echo "extension=mongo.so" > /usr/local/etc/php/conf.d/mongo.ini \
+    && echo "extension=mongodb.so" > /usr/local/etc/php/conf.d/mongodb.ini \
     ; pecl clear-cache \
     ; rm -rf /tmp/pear ~/.pearrc \
     ; rm -rf /var/lib/apt/lists/* \
