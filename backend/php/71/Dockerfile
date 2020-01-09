@@ -260,11 +260,13 @@ RUN apt-get update \
     ; docker-php-ext-install tidy \
     && docker-php-ext-install zip \
     ; docker-php-ext-configure opcache \
-    && docker-php-ext-install opcache \
-    ; pecl update-channels \
-    ; pecl install protobuf grpc \
+    && docker-php-ext-install opcache
+
+RUN pecl update-channels \
+    ; pecl install protobuf grpc mongodb \
     && echo "extension=protobuf.so" >> /usr/local/etc/php/conf.d/php-ext-protobuf.ini \
     && echo "extension=grpc.so" >> /usr/local/etc/php/conf.d/php-ext-grpc.ini \
+    && echo "extension=mongo.so" > /usr/local/etc/php/conf.d/mongo.ini \
     ; pecl clear-cache \
     ; rm -rf /tmp/pear ~/.pearrc \
     ; rm -rf /var/lib/apt/lists/* \
