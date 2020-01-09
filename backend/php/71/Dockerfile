@@ -252,8 +252,6 @@ RUN apt-get update \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl \
     ; apt-get install -y --no-install-recommends libpq-dev \
-    && docker-php-ext-configure pdo_pgsql \
-    && docker-php-ext-install pdo_pgsql \
     ; docker-php-ext-install sockets \
     ; apt-get install -y --no-install-recommends libtidy-dev \
     && docker-php-ext-configure tidy \
@@ -263,9 +261,8 @@ RUN apt-get update \
     && docker-php-ext-install opcache
 
 RUN pecl update-channels \
-    ; pecl install protobuf grpc mongodb \
-    && echo "extension=protobuf.so" >> /usr/local/etc/php/conf.d/php-ext-protobuf.ini \
-    && echo "extension=grpc.so" >> /usr/local/etc/php/conf.d/php-ext-grpc.ini \
+	; echo "install mongodb" \
+	&& pecl install mongodb-1.5.5 \
     && echo "extension=mongodb.so" > /usr/local/etc/php/conf.d/mongodb.ini \
     ; pecl clear-cache \
     ; rm -rf /tmp/pear ~/.pearrc \
