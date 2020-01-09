@@ -252,6 +252,10 @@ RUN apt-get update \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl \
     ; apt-get install -y --no-install-recommends libpq-dev \
+	&& docker-php-ext-configure pdo_pgsql \
+    && docker-php-ext-install pdo_pgsql \
+	&& docker-php-ext-configure pdo_mysql \
+    && docker-php-ext-install pdo_mysql \
     ; docker-php-ext-install sockets \
     ; apt-get install -y --no-install-recommends libtidy-dev \
     && docker-php-ext-configure tidy \
